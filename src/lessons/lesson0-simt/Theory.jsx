@@ -1,6 +1,28 @@
 export function Theory() {
   return (
     <div className="space-y-5 text-sm leading-relaxed" style={{ color: "#a3c9a8" }}>
+
+      {/* Real-world scenario callout */}
+      <div
+        className="rounded p-4 space-y-2"
+        style={{ border: "1px solid #1a5c20", background: "rgba(0,255,65,0.04)" }}
+      >
+        <p className="text-xs font-bold tracking-widest" style={{ color: "var(--green)" }}>
+          // REAL SCENARIO: 32 PIXELS IN ONE ROW
+        </p>
+        <p style={{ color: "var(--green-dim)" }}>
+          Imagine a GPU shading one row of a game scene. It processes 32 adjacent pixels
+          in lockstep — one instruction, 32 lanes. Some pixels hit the sky in 3 bounces
+          and finish quickly. Others bounce through a corridor for 100 iterations.
+        </p>
+        <p style={{ color: "var(--green-dim)" }}>
+          The warp cannot move on until <em>every</em> lane is done. So the fast lanes sit
+          idle, burning GPU cycles for nothing. The simulation below shows those 32 lanes.
+          When you mask lanes, you are simulating the ones that finished early — they are
+          <strong style={{ color: "var(--green)" }}> wasted slots</strong> every step.
+        </p>
+      </div>
+
       <section className="space-y-2">
         <p className="font-bold tracking-widest" style={{ color: "var(--green)" }}>
           // 01 — WHY GPUs EXIST

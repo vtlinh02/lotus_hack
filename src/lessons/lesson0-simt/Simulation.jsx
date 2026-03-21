@@ -62,6 +62,19 @@ export function Simulation() {
 
   return (
     <div className="space-y-5 text-xs tracking-wide" style={{ color: "var(--green)" }}>
+
+      {/* Context banner */}
+      <div
+        className="rounded p-3 text-xs leading-relaxed"
+        style={{ border: "1px solid #1a5c20", background: "rgba(0,255,65,0.03)", color: "var(--green-dim)" }}
+      >
+        <span style={{ color: "var(--green)" }}>// WHAT YOU ARE SEEING: </span>
+        These 32 lanes are one warp — 32 threads executing the same instruction in lockstep. Click
+        RUN to watch them fire together every step. Drag the slider to simulate threads that
+        finished early (e.g. in a game: some pixels hit the sky in 3 bounces, others keep bouncing
+        through geometry). The masked lanes sit idle and waste GPU cycles — that is warp divergence.
+      </div>
+
       {/* Header stats */}
       <div className="flex flex-wrap gap-6 border-b pb-3" style={{ borderColor: "var(--border)" }}>
         <div>
@@ -218,6 +231,29 @@ export function Simulation() {
             // All lanes masked — the warp produces zero useful work. 100% overhead.
           </p>
         )}
+      </div>
+
+      {/* Try this guide */}
+      <div
+        className="rounded p-4 space-y-2 text-xs leading-relaxed"
+        style={{ border: "1px solid #1a5c20", background: "rgba(0,255,65,0.03)" }}
+      >
+        <p className="font-bold tracking-widest" style={{ color: "var(--green)" }}>// TRY THIS</p>
+        <ol className="space-y-1 list-none" style={{ color: "var(--green-dim)" }}>
+          <li>
+            <span style={{ color: "var(--green)" }}>1.</span> Leave the slider at 0, click{" "}
+            <strong>RUN LOCKSTEP</strong> — all 32 lanes fire every step, 100% utilization. Perfect SIMT.
+          </li>
+          <li>
+            <span style={{ color: "var(--green)" }}>2.</span> Set the slider to <strong>16</strong> —
+            half the warp is masked. Run again. Utilization drops to 50%. Those 16 lanes waste
+            cycles every step.
+          </li>
+          <li>
+            <span style={{ color: "var(--green)" }}>3.</span> Set the slider to <strong>32</strong> —
+            all lanes dead. The warp produces zero useful work. 100% overhead.
+          </li>
+        </ol>
       </div>
     </div>
   );
