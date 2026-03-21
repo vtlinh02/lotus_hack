@@ -11,6 +11,13 @@ const traceCtx = traceCanvas.getContext("2d");
 const mandelMeta = document.getElementById("mandelMeta");
 const traceMeta = document.getElementById("traceMeta");
 
+const memoryCanvas = document.getElementById("memoryCanvas");
+const memoryCtx = memoryCanvas.getContext("2d");
+const memoryMeta = document.getElementById("memoryMeta");
+
+const patternSelect = document.getElementById("patternSelect");
+const baseAddressInput = document.getElementById("baseAddressInput");
+
 const view = {
   x_min: -2.0,
   x_max: 1.0,
@@ -115,6 +122,83 @@ function drawTrace(trace) {
     `active_counts: ${trace.active_counts.join(", ")}`;
 }
 
+function drawMemoryTrace(trace) {
+  memoryCtx.clearRect(0, 0, memoryCanvas.width, memoryCanvas.height);
+
+  const lanes = trace.warp_width;
+  const cellW = memoryCanvas.width / lanes;
+  const cellH = 70;
+
+  const colorMap = new Map();
+  const palette = [
+    "#2563eb", "#16a34a", "#dc2626", "#9333ea",
+    "#ea580c", "#0891b2", "#ca8a04", "#4f46e5"
+  ];
+
+  function colorForSegment(seg) {
+    if (seg < 0) return "#111827";
+    if (!colorMap.has(seg)) {
+      colorMap.set(seg, palette[colorMap.size % palette.length]);
+    }
+    return colorMap.get(seg);
+  }
+
+  // Row 1: lane index
+  for (let lane = 0; lane < lanes; lane++) {
+    memoryCtx.fillStyle = "#1f2937";
+    memoryCtx.fillRect(lane * cellW, 0, cellW - 1, 40);
+    memoryCtx.fillStyle = "#e5e7eb";
+    memoryCtx.fillText(`${lane}`, lane * cellW + 6, 24);
+  }
+
+  // Row 2: segment colors
+  for (let lane = 0; lane < lanes; lane++) {
+    const active = trace.active_mask[lane] === 1;
+    const seg = trace.lane_segments[lane];
+    memoryCtx.fillStyle = active ? colorForSegment(seg) : "#111827";
+    memoryCtx.fillRect(lane * cellW, 50, cellW - 1, cellH);
+
+    memoryCtx.fillStyle = "#ffffff";
+    if (active) {
+      memoryCtx.fillText(`S${seg}`, lane * cellW + 4, 92);
+    }
+  }
+
+  // Row 3: address labels
+  for (let lane = 0; lane < lanes; lane++) {
+    memoryCtx.fillStyle = "#0f172a";
+    memoryCtx.fillRect(lane * cellW, 130, cellW - 1, cellH);
+
+    memoryCtx.fillStyle = "#93c5fd";
+    const addr = trace.lane_addresses[lane];
+    if (addr >= 0) {
+      memoryCtx.fillText(`${addr}`, lane * cellW + 2, 172);
+    }
+  }
+
+  memoryMeta.textContent =
+    `transactions: ${trace.num_transactions}
+requested_bytes: ${trace.requested_bytes}
+fetched_bytes: ${trace.fetched_bytes}
+load_efficiency: ${(trace.load_efficiency * 100).toFixed(2)}%
+rule: unique 32-byte segments touched by active warp lanes`;
+}
+
+function runMemoryLab() {
+  const strideWords = Number(patternSelect.value);
+  const baseAddress = Number(baseAddressInput.value);
+
+  const trace = Module.simulateCoalescing({
+    warp_width: 32,
+    word_size: 4,
+    base_address: baseAddress,
+    stride_words: strideWords,
+    active_mask: new Array(32).fill(1),
+  });
+
+  drawMemoryTrace(trace);
+}
+
 function clampStartPx(px, width) {
   return Math.max(0, Math.min(px, width - warpWidth));
 }
@@ -147,4 +231,8 @@ mandelCanvas.addEventListener("click", (event) => {
   drawTrace(trace);
 });
 
+patternSelect.addEventListener("change", runMemoryLab);
+baseAddressInput.addEventListener("input", runMemoryLab);
+
 drawMandelbrot();
+runMemoryLab();

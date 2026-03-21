@@ -12,11 +12,14 @@
       }
 
       .wrap {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        padding: 16px;
-      }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+.panel:last-child {
+  grid-column: 1 / span 2;
+}
 
       .panel {
         background: #111827;
@@ -69,7 +72,8 @@
       <div class="panel">
         <h2 class="title">Mandelbrot View</h2>
         <div class="hint">
-          Click the image. The app will trace one logical GPU warp of 32 neighboring pixels.
+          Click the image. The app will trace one logical GPU warp of 32
+          neighboring pixels.
         </div>
         <canvas id="mandelCanvas" width="640" height="480"></canvas>
         <div id="mandelMeta" class="meta"></div>
@@ -83,6 +87,32 @@
         <canvas id="traceCanvas" width="640" height="480"></canvas>
         <div id="traceMeta" class="meta"></div>
       </div>
+    </div>
+    <div class="panel">
+      <h2 class="title">Global Memory Coalescing</h2>
+      <div class="hint">
+        Warp memory access pattern for one load instruction.
+      </div>
+
+      <div style="margin-bottom: 10px">
+        <label
+          >Pattern:
+          <select id="patternSelect">
+            <option value="1">Contiguous (stride 1)</option>
+            <option value="2">Stride 2</option>
+            <option value="4">Stride 4</option>
+            <option value="8">Stride 8</option>
+          </select>
+        </label>
+
+        <label style="margin-left: 12px"
+          >Base address:
+          <input id="baseAddressInput" type="number" value="0" step="4" />
+        </label>
+      </div>
+
+      <canvas id="memoryCanvas" width="640" height="220"></canvas>
+      <div id="memoryMeta" class="meta"></div>
     </div>
 
     <script type="module" src="./main.js"></script>
