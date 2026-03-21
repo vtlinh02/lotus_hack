@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { useWasm } from "../../hooks/useWasm.js";
 
 const WARP_WIDTH = 32;
+const DEFAULT_SPEED_MS = 50;
 
 const VIEW = {
   x_min: -2.0,
@@ -37,14 +38,42 @@ function clampStartPx(px, width) {
   return Math.max(0, Math.min(px, width - WARP_WIDTH));
 }
 
+function formatTraceMeta(trace, visibleRows, animating) {
+  const rows = trace.steps.length;
+  const duringAnimation =
+    animating &&
+    visibleRows < rows;
+
+  if (rows === 0) return "No active steps recorded.";
+
+  if (duringAnimation) {
+    return (
+      `warp_width: ${trace.warp_width}  step: ${visibleRows} / ${rows}  (animating...)\n` +
+      `divergence_start_iter: ${trace.divergence_start_iter}  utilization: ${(trace.utilization * 100).toFixed(2)}%`
+    );
+  }
+
+  return (
+    `warp_width: ${trace.warp_width}  steps: ${rows}  divergence_start_iter: ${trace.divergence_start_iter}  utilization: ${(trace.utilization * 100).toFixed(2)}%\n` +
+    `lane_escape_iters: ${trace.lane_escape_iters.join(", ")}\n` +
+    `active_counts: ${trace.active_counts.join(", ")}`
+  );
+}
+
 export function Simulation() {
   const mandelCanvasRef = useRef(null);
   const traceCanvasRef = useRef(null);
+  const intervalRef = useRef(null);
+
   const { module, error } = useWasm();
   const [mandelMeta, setMandelMeta] = useState("");
   const [traceMeta, setTraceMeta] = useState(
     "Click the Mandelbrot image to trace one 32-pixel warp on that row."
   );
+  const [trace, setTrace] = useState(null);
+  const [visibleRows, setVisibleRows] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const [speedMs, setSpeedMs] = useState(DEFAULT_SPEED_MS);
 
   const drawMandelbrot = useCallback(() => {
     const mandelCanvas = mandelCanvasRef.current;
@@ -82,39 +111,97 @@ export function Simulation() {
     mandelCtx.restore();
   }, []);
 
-  const drawTrace = useCallback((traceCtx, traceCanvas, trace) => {
-    const steps = trace.steps;
+  const drawTrace = useCallback((traceCtx, traceCanvas, traceData, maxRow) => {
+    const steps = traceData.steps;
     const rows = steps.length;
-    const cols = trace.warp_width;
+    const cols = traceData.warp_width;
 
     traceCtx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
 
-    if (rows === 0) {
-      setTraceMeta("No active steps recorded.");
-      return;
-    }
+    if (rows === 0) return;
 
     const cellW = traceCanvas.width / cols;
     const cellH = Math.max(2, traceCanvas.height / rows);
+    const toDraw = Math.min(maxRow, rows);
 
-    for (let r = 0; r < rows; r++) {
+    for (let r = 0; r < toDraw; r++) {
       for (let c = 0; c < cols; c++) {
         const active = steps[r][c] === 1;
         traceCtx.fillStyle = active ? "#39d353" : "#1f2937";
         traceCtx.fillRect(c * cellW, r * cellH, cellW - 1, cellH - 1);
       }
     }
-
-    setTraceMeta(
-      `warp_width: ${trace.warp_width}  steps: ${rows}  divergence_start_iter: ${trace.divergence_start_iter}  utilization: ${(trace.utilization * 100).toFixed(2)}%\n` +
-        `lane_escape_iters: ${trace.lane_escape_iters.join(", ")}\n` +
-        `active_counts: ${trace.active_counts.join(", ")}`
-    );
   }, []);
+
+  // Redraw trace when trace or visibleRows change
+  useEffect(() => {
+    if (!trace || !traceCanvasRef.current) return;
+    const traceCtx = traceCanvasRef.current.getContext("2d");
+    drawTrace(traceCtx, traceCanvasRef.current, trace, visibleRows);
+    setTraceMeta(formatTraceMeta(trace, visibleRows, animating));
+  }, [trace, visibleRows, animating, drawTrace]);
+
+  const startAnimation = useCallback(
+    (t, fromRow = 0) => {
+      const total = t.steps.length;
+      if (total === 0) {
+        setVisibleRows(0);
+        setAnimating(false);
+        return;
+      }
+
+      if (intervalRef.current) clearInterval(intervalRef.current);
+
+      setVisibleRows(fromRow);
+      setAnimating(true);
+
+      intervalRef.current = setInterval(() => {
+        setVisibleRows((prev) => {
+          if (prev >= total - 1) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+            setAnimating(false);
+            return total;
+          }
+          return prev + 1;
+        });
+      }, speedMs);
+    },
+    [speedMs]
+  );
+
+  const handlePause = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setAnimating(false);
+  }, []);
+
+  const handleReplay = useCallback(() => {
+    if (!trace) return;
+    startAnimation(trace, 0);
+  }, [trace, startAnimation]);
+
+  const handlePlay = useCallback(() => {
+    if (!trace) return;
+    const total = trace.steps.length;
+    const finished = visibleRows >= total;
+    startAnimation(trace, finished ? 0 : visibleRows);
+  }, [trace, visibleRows, startAnimation]);
 
   useEffect(() => {
     drawMandelbrot();
   }, [drawMandelbrot]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const mandelCanvas = mandelCanvasRef.current;
@@ -124,7 +211,6 @@ export function Simulation() {
     const onClick = (event) => {
       drawMandelbrot();
       const mandelCtx = mandelCanvas.getContext("2d");
-      const traceCtx = traceCanvas.getContext("2d");
       const rect = mandelCanvas.getBoundingClientRect();
       const scaleX = mandelCanvas.width / rect.width;
       const scaleY = mandelCanvas.height / rect.height;
@@ -137,7 +223,7 @@ export function Simulation() {
         return;
       }
 
-      const trace = module.simulateWarp({
+      const newTrace = module.simulateWarp({
         image_width: mandelCanvas.width,
         image_height: mandelCanvas.height,
         start_px: startPx,
@@ -151,12 +237,14 @@ export function Simulation() {
       });
 
       drawWarpOverlay(mandelCtx, startPx, py);
-      drawTrace(traceCtx, traceCanvas, trace);
+
+      setTrace(newTrace);
+      startAnimation(newTrace, 0);
     };
 
     mandelCanvas.addEventListener("click", onClick);
     return () => mandelCanvas.removeEventListener("click", onClick);
-  }, [module, drawMandelbrot, drawWarpOverlay, drawTrace]);
+  }, [module, drawMandelbrot, drawWarpOverlay, startAnimation]);
 
   if (error) {
     return (
@@ -165,6 +253,9 @@ export function Simulation() {
       </p>
     );
   }
+
+  const totalRows = trace?.steps?.length ?? 0;
+  const canControl = trace && totalRows > 0;
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -181,7 +272,7 @@ export function Simulation() {
           {mandelMeta}
         </pre>
       </div>
-      <div>
+      <div className="flex flex-col gap-3">
         <p className="mb-2 text-xs text-slate-500">
           Columns = lanes 0–31, rows = iterations (green = active)
         </p>
@@ -192,9 +283,40 @@ export function Simulation() {
           height={480}
           className="w-full max-w-[640px] border border-slate-600 bg-black [image-rendering:pixelated]"
         />
-        <pre className="mt-2 whitespace-pre-wrap font-mono text-xs text-slate-400">
-          {traceMeta}
-        </pre>
+
+        {canControl && (
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={animating ? handlePause : handlePlay}
+              className="rounded border border-slate-600 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700"
+            >
+              {animating ? "Pause" : "Play"}
+            </button>
+            <button
+              type="button"
+              onClick={handleReplay}
+              className="rounded border border-slate-600 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700"
+            >
+              Replay
+            </button>
+            <label className="flex items-center gap-2 text-xs text-slate-400">
+              Speed:
+              <select
+                value={speedMs}
+                onChange={(e) => setSpeedMs(Number(e.target.value))}
+                className="rounded border border-slate-600 bg-slate-800 px-2 py-1 text-slate-200"
+                disabled={animating}
+              >
+                <option value={25}>Fast (25ms/row)</option>
+                <option value={50}>Normal (50ms/row)</option>
+                <option value={100}>Slow (100ms/row)</option>
+              </select>
+            </label>
+          </div>
+        )}
+
+        <pre className="whitespace-pre-wrap font-mono text-xs text-slate-400">{traceMeta}</pre>
       </div>
     </div>
   );

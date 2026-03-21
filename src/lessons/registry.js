@@ -1,6 +1,7 @@
 import { lesson0Meta } from "./lesson0-simt/meta.js";
 import { lesson2Meta } from "./lesson2-divergence/meta.js";
 import { lesson3Meta } from "./lesson3-coalescing/meta.js";
+import { lesson4Meta } from "./lesson4-shared-memory/meta.js";
 
 /**
  * Single source of truth for lessons. To add a lesson:
@@ -21,6 +22,10 @@ export const LESSONS = [
     ...lesson3Meta,
     number: 3,
     component: () => import("./lesson3-coalescing/index.jsx"),
+  },
+  {
+    ...lesson4Meta,
+    component: () => import("./lesson4-shared-memory/index.jsx"),
   },
 ];
 
