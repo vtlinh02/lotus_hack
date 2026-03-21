@@ -13,7 +13,6 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
         {chapters.map((ch, idx) => {
           const done = isComplete(ch.id);
           const current = ch.id === currentChapterId;
-          const locked = !done && idx > 0 && !isComplete(chapters[idx - 1]?.id);
           const hasWrongPath = !!ch.wrongPath || ch.isWrongPathChapter;
 
           return (
@@ -21,8 +20,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
               <div className="flex flex-col items-center">
                 <button
                   type="button"
-                  onClick={() => !locked && onSelect(ch.id)}
-                  disabled={locked}
+                  onClick={() => onSelect(ch.id)}
                   className="flex flex-col items-center gap-1 rounded p-4 text-center transition-all"
                   style={{
                     border: current
@@ -36,8 +34,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                       ? "rgba(0,170,42,0.04)"
                       : "rgba(3,15,4,0.9)",
                     boxShadow: current ? "0 0 12px #00ff4133" : "none",
-                    opacity: locked ? 0.5 : 1,
-                    cursor: locked ? "not-allowed" : "pointer",
+                    cursor: "pointer",
                   }}
                 >
                   <span
@@ -60,7 +57,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                     className="text-xs tracking-widest"
                     style={{ color: done ? "var(--green)" : "#1a3d1e" }}
                   >
-                    {done ? "CLEARED" : locked ? "LOCKED" : "OPEN"}
+                    {done ? "CLEARED" : "OPEN"}
                   </span>
                 </button>
                 {idx < chapters.length - 1 && (
