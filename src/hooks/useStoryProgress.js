@@ -1,15 +1,18 @@
 import { useState, useCallback } from "react";
+import { getChapterById } from "../story/chapters.js";
 
 const STORAGE_KEY = "xray-story";
 
-const DEFAULT_CHAPTER_ID = "ch1-slow-shader";
+const DEFAULT_CHAPTER_ID = "ch1-slow-loop";
 
 function loadFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const data = raw ? JSON.parse(raw) : {};
+    const storedId = data.currentChapterId ?? DEFAULT_CHAPTER_ID;
+    const currentChapterId = getChapterById(storedId) ? storedId : DEFAULT_CHAPTER_ID;
     return {
-      currentChapterId: data.currentChapterId ?? DEFAULT_CHAPTER_ID,
+      currentChapterId,
       completedIds: Array.isArray(data.completedIds) ? data.completedIds : [],
       wrongPathSeenIds: Array.isArray(data.wrongPathSeenIds) ? data.wrongPathSeenIds : [],
     };

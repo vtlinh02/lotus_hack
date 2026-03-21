@@ -1,38 +1,68 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChapterNarrative } from "./ChapterNarrative.jsx";
 import { WarpSimulation } from "./WarpSimulation.jsx";
+import { SequentialVsParallelSim } from "./SequentialVsParallelSim.jsx";
+import { ThreadCountSim } from "./ThreadCountSim.jsx";
+import { RaceConditionSim } from "./RaceConditionSim.jsx";
+import { CpuVsGpuSim } from "./CpuVsGpuSim.jsx";
 import { TermHintBar } from "./TermHintBar.jsx";
 import { AIChatPanel } from "./AIChatPanel.jsx";
 import { WrongPathReveal } from "./WrongPathReveal.jsx";
-
-const TOTAL_LANES = 32;
+import { CodePanel } from "./CodePanel.jsx";
+import { OptimizePanel } from "./OptimizePanel.jsx";
+import {
+  getInitialSimState,
+  meetsTarget,
+  formatTargetCurrent,
+} from "../story/simState.js";
 
 export function StoryView({ chapter, onComplete, onGoMap }) {
   const [phase, setPhase] = useState("narrative");
-  const [simState, setSimState] = useState({
-    maskedCount: chapter.simulation.initialMasked,
-    activeLanes: TOTAL_LANES - chapter.simulation.initialMasked,
-    utilization:
-      ((TOTAL_LANES - chapter.simulation.initialMasked) / TOTAL_LANES) * 100,
-  });
+  const [simState, setSimState] = useState(() => getInitialSimState(chapter));
   const [pendingAiInput, setPendingAiInput] = useState("");
   const [showWinMessage, setShowWinMessage] = useState(false);
+  const [simInitialMasked, setSimInitialMasked] = useState(
+    chapter.simulation?.type === "warp"
+      ? chapter.simulation.initialMasked ?? 0
+      : 0
+  );
+  const [simUpgrade, setSimUpgrade] = useState({});
 
   const handleNarrativeDone = useCallback(() => {
-    if (chapter.isWrongPathChapter) {
-      setPhase("wrongpath_witness");
-    } else {
-      setPhase("challenge");
-    }
-  }, [chapter.isWrongPathChapter]);
+    setPhase("challenge");
+  }, []);
 
   const handleSimChange = useCallback((state) => {
-    setSimState(state);
+    setSimState((prev) => ({ ...prev, ...state }));
   }, []);
 
   const handleHintClick = useCallback((term) => {
     setPendingAiInput(`explain: ${term}`);
   }, []);
+
+  const handleOptimizeCorrect = useCallback(() => {
+    if (chapter.isWrongPathChapter) {
+      setPhase("wrongpath_witness");
+      return;
+    }
+    if (chapter.optimize?.fixedMasked != null) {
+      setSimInitialMasked(chapter.optimize.fixedMasked);
+      return;
+    }
+    if (chapter.optimize?.parallelWorkers != null) {
+      setSimUpgrade((u) => ({
+        ...u,
+        parallelWorkers: chapter.optimize.parallelWorkers,
+      }));
+      return;
+    }
+    if (chapter.optimize?.unlockMaxThreads != null) {
+      setSimUpgrade((u) => ({
+        ...u,
+        maxThreadCount: chapter.optimize.unlockMaxThreads,
+      }));
+    }
+  }, [chapter.isWrongPathChapter, chapter.optimize]);
 
   const handlePendingConsumed = useCallback(() => {
     setPendingAiInput("");
@@ -41,7 +71,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
   useEffect(() => {
     if (phase !== "challenge") return;
     if (!chapter.target) return;
-    if (simState.utilization >= chapter.target.utilization) {
+    if (meetsTarget(chapter.target, simState)) {
       setPhase("success");
       setShowWinMessage(true);
     }
@@ -60,9 +90,61 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
     }
   }, [chapter.wrongPath, onComplete]);
 
-  const isWrongPathPhase =
-    phase === "wrongpath_witness" || phase === "wrongpath_reveal";
-  const wrongPathData = chapter.wrongPath ?? (chapter.isWrongPathChapter ? chapter.wrongPath : null);
+  const wrongPathData = chapter.wrongPath ?? null;
+
+  useEffect(() => {
+    setPhase("narrative");
+    setPendingAiInput("");
+    setShowWinMessage(false);
+    setSimUpgrade({});
+    setSimState(getInitialSimState(chapter));
+    setSimInitialMasked(
+      chapter.simulation?.type === "warp"
+        ? chapter.simulation.initialMasked ?? 0
+        : 0
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when chapter id changes
+  }, [chapter.id]);
+
+  const simType = chapter.simulation?.type ?? "warp";
+  const simReadonly = phase === "success" || chapter.simulation?.readonly;
+
+  const renderSimulation = () => {
+    switch (simType) {
+      case "sequential-vs-parallel":
+        return (
+          <SequentialVsParallelSim
+            parallelWorkers={simUpgrade.parallelWorkers ?? 1}
+            readonly={simReadonly}
+            onChange={handleSimChange}
+          />
+        );
+      case "thread-count":
+        return (
+          <ThreadCountSim
+            maxThreadCount={simUpgrade.maxThreadCount ?? 2}
+            readonly={simReadonly}
+            onChange={handleSimChange}
+          />
+        );
+      case "race-condition":
+        return <RaceConditionSim readonly={simReadonly} onChange={handleSimChange} />;
+      case "cpu-vs-gpu":
+        return <CpuVsGpuSim readonly={simReadonly} onChange={handleSimChange} />;
+      case "warp":
+      default:
+        return (
+          <WarpSimulation
+            initialMasked={simInitialMasked}
+            readonly={simReadonly}
+            onChange={handleSimChange}
+          />
+        );
+    }
+  };
+
+  const targetLine =
+    chapter.target && formatTargetCurrent(chapter.target, simState);
 
   return (
     <div
@@ -80,7 +162,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
             PARALLEL_XRAY{" "}
           </span>
           <span style={{ color: "var(--green-dim)" }}>
-            // CH{chapter.number}: {chapter.title}
+            {`// CH${chapter.number}: ${chapter.title}`}
           </span>
         </div>
         <button
@@ -101,7 +183,6 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
           className="flex-1 space-y-4 overflow-y-auto p-4"
           style={{ minWidth: 0 }}
         >
-          {/* Left column: narrative, simulation, target */}
           {phase === "narrative" && (
             <section
               className="rounded p-4"
@@ -114,13 +195,13 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                 className="mb-3 text-xs font-bold tracking-widest"
                 style={{ color: "var(--green-dim)" }}
               >
-                // MISSION BRIEFING
+                {"// MISSION BRIEFING"}
               </p>
               <ChapterNarrative lines={chapter.narrative} onDone={handleNarrativeDone} />
             </section>
           )}
 
-          {(phase === "challenge" || phase === "success" || phase === "wrongpath_witness") && (
+          {phase === "wrongpath_witness" && wrongPathData && (
             <>
               <section
                 className="rounded p-4"
@@ -133,7 +214,35 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                   className="mb-3 text-xs font-bold tracking-widest"
                   style={{ color: "var(--green-dim)" }}
                 >
-                  // MISSION BRIEFING
+                  {"// MISSION BRIEFING"}
+                </p>
+                <div className="space-y-1 font-mono text-xs" style={{ color: "var(--green-dim)" }}>
+                  {chapter.narrative.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </section>
+              <WrongPathReveal
+                wrongPath={wrongPathData}
+                onContinue={handleWrongPathContinue}
+              />
+            </>
+          )}
+
+          {(phase === "challenge" || phase === "success") && (
+            <>
+              <section
+                className="rounded p-4"
+                style={{
+                  border: "1px solid var(--border)",
+                  background: "rgba(3,15,4,0.8)",
+                }}
+              >
+                <p
+                  className="mb-3 text-xs font-bold tracking-widest"
+                  style={{ color: "var(--green-dim)" }}
+                >
+                  {"// MISSION BRIEFING"}
                 </p>
                 <div className="space-y-1 font-mono text-xs" style={{ color: "var(--green-dim)" }}>
                   {chapter.narrative.map((line, i) => (
@@ -142,38 +251,44 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                 </div>
               </section>
 
-              {!isWrongPathPhase && (
-                <section
-                  className="rounded p-4"
-                  style={{
-                    border: "1px solid var(--border)",
-                    background: "rgba(3,15,4,0.8)",
-                  }}
-                >
-                  <p
-                    className="mb-3 text-xs font-bold tracking-widest"
-                    style={{ color: "var(--green-dim)" }}
-                  >
-                    // SIMULATION
-                  </p>
-                  <WarpSimulation
-                    initialMasked={chapter.simulation.initialMasked}
-                    readonly={phase === "success" || chapter.simulation.readonly}
-                    onChange={handleSimChange}
-                  />
-                  {chapter.target && (
-                    <div className="mt-3 text-xs" style={{ color: "var(--green-dim)" }}>
-                      <span className="font-bold" style={{ color: "var(--green)" }}>
-                        // TARGET:{" "}
-                      </span>
-                      {chapter.target.label}
-                      <span className="ml-2" style={{ color: "var(--green)" }}>
-                        current: {simState.utilization.toFixed(0)}%
-                      </span>
-                    </div>
-                  )}
-                </section>
+              <CodePanel codeSnippet={chapter.codeSnippet} />
+
+              {chapter.optimize && (
+                <OptimizePanel
+                  key={chapter.id}
+                  optimize={chapter.optimize}
+                  onCorrect={handleOptimizeCorrect}
+                />
               )}
+
+              <section
+                className="rounded p-4"
+                style={{
+                  border: "1px solid var(--border)",
+                  background: "rgba(3,15,4,0.8)",
+                }}
+              >
+                <p
+                  className="mb-3 text-xs font-bold tracking-widest"
+                  style={{ color: "var(--green-dim)" }}
+                >
+                  {"// SIMULATION"}
+                </p>
+                {renderSimulation()}
+                {chapter.target && (
+                  <div className="mt-3 text-xs" style={{ color: "var(--green-dim)" }}>
+                    <span className="font-bold" style={{ color: "var(--green)" }}>
+                      {"// TARGET: "}
+                    </span>
+                    {chapter.target.label}
+                    {targetLine && (
+                      <span className="ml-2" style={{ color: "var(--green)" }}>
+                        {targetLine}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </section>
 
               {phase === "success" && showWinMessage && chapter.winMessage.length > 0 && (
                 <section
@@ -198,7 +313,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                 !chapter.wrongPath &&
                 (
                   <p className="text-xs" style={{ color: "var(--green)" }}>
-                    // chapter complete.{" "}
+                    {"// chapter complete. "}
                     <button
                       type="button"
                       onClick={() => onComplete?.()}
@@ -211,7 +326,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
             </>
           )}
 
-          {isWrongPathPhase && wrongPathData && (
+          {phase === "wrongpath_reveal" && wrongPathData && (
             <WrongPathReveal
               wrongPath={wrongPathData}
               onContinue={handleWrongPathContinue}
@@ -227,7 +342,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
             className="mb-3 text-xs font-bold tracking-widest"
             style={{ color: "var(--green)" }}
           >
-            // XRAY-AI
+            {"// XRAY-AI"}
           </p>
           <TermHintBar
             hints={chapter.termHints}
