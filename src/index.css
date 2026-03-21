@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -11,7 +11,7 @@
 }
 
 *, *::before, *::after {
-  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-family: 'Ubuntu Mono', ui-monospace, monospace;
 }
 
 html, body, #root {
