@@ -46,6 +46,15 @@ export function getInitialSimState(chapter) {
     };
   }
 
+  if (type === "mandelbrot-warp") {
+    return {
+      kind: "mandelbrot-warp",
+      utilization: 25,
+      activeLanes: 8,
+      maskedCount: 24,
+    };
+  }
+
   return {
     kind: "warp",
     maskedCount: 0,

@@ -352,12 +352,16 @@ export const CHAPTERS = [
     },
     context:
       "A warp of 32 GPU threads advances together. Early-exiting lanes sit idle while others finish — poor utilization.",
-    simulation: { type: "warp", initialMasked: 24, readonly: false },
-    target: { utilization: 80, label: ">= 80% warp utilization" },
+    simulation: {
+      type: "mandelbrot-warp",
+      initialRegion: "boundary",
+      readonly: false,
+    },
+    target: { utilization: 80, label: ">= 80% warp utilization (aggregate)" },
     termHints: ["warp", "lockstep execution"],
     optimize: {
       prompt: "which of these fixes the warp utilization problem?",
-      fixedMasked: 4,
+      coherentWarp: true,
       choices: [
         {
           label: "Remove the isSkyPixel check — run computeLighting() on all 32 lanes",

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChapterNarrative } from "./ChapterNarrative.jsx";
 import { WarpSimulation } from "./WarpSimulation.jsx";
+import { MandelbrotWarpSim } from "./MandelbrotWarpSim.jsx";
 import { SequentialVsParallelSim } from "./SequentialVsParallelSim.jsx";
 import { ThreadCountSim } from "./ThreadCountSim.jsx";
 import { RaceConditionSim } from "./RaceConditionSim.jsx";
@@ -43,6 +44,10 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
   const handleOptimizeCorrect = useCallback(() => {
     if (chapter.isWrongPathChapter) {
       setPhase("wrongpath_witness");
+      return;
+    }
+    if (chapter.optimize?.coherentWarp) {
+      setSimUpgrade((u) => ({ ...u, coherentWarp: true }));
       return;
     }
     if (chapter.optimize?.fixedMasked != null) {
@@ -131,6 +136,21 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
         return <RaceConditionSim readonly={simReadonly} onChange={handleSimChange} />;
       case "cpu-vs-gpu":
         return <CpuVsGpuSim readonly={simReadonly} onChange={handleSimChange} />;
+      case "mandelbrot-warp":
+        return (
+          <MandelbrotWarpSim
+            initialRegion={chapter.simulation?.initialRegion ?? "boundary"}
+            readonly={simReadonly}
+            coherentWarp={!!simUpgrade.coherentWarp}
+            onCoherentWarpConsumed={() =>
+              setSimUpgrade((u) => {
+                const { coherentWarp: _c, ...rest } = u;
+                return rest;
+              })
+            }
+            onChange={handleSimChange}
+          />
+        );
       case "warp":
       default:
         return (
