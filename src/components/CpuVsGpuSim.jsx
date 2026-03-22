@@ -76,20 +76,20 @@ export function CpuVsGpuSim({ readonly = false, onChange }) {
         <div>
           <span style={{ color: "var(--green-dim)" }}>CPU_CORES </span>
           <span className="text-base font-bold">{CPU_CORES}</span>
-          <span className="ml-2" style={{ color: "#1a3d1e" }}>
+          <span className="ml-2" style={{ color: "var(--gray-subtle)" }}>
             wide, independent
           </span>
         </div>
         <div>
           <span style={{ color: "var(--green-dim)" }}>GPU_LANES </span>
           <span className="text-base font-bold">{GPU_TILES}</span>
-          <span className="ml-2" style={{ color: "#1a3d1e" }}>
+          <span className="ml-2" style={{ color: "var(--gray-subtle)" }}>
             same op, lockstep
           </span>
         </div>
         <div>
           <span style={{ color: "var(--green-dim)" }}>DEMO </span>
-          <span className="text-base font-bold" style={{ color: demoDone ? "var(--green)" : "#1a3d1e" }}>
+          <span className="text-base font-bold" style={{ color: demoDone ? "var(--green)" : "var(--gray-subtle)" }}>
             {demoDone ? "GPU_OK" : "—"}
           </span>
         </div>
@@ -115,7 +115,7 @@ export function CpuVsGpuSim({ readonly = false, onChange }) {
               </div>
             ))}
           </div>
-          <p className="mt-2" style={{ color: "#1a3d1e" }}>
+          <p className="mt-2" style={{ color: "var(--gray-subtle)" }}>
             fills work in waves of {CPU_CORES}
           </p>
         </div>
@@ -136,7 +136,7 @@ export function CpuVsGpuSim({ readonly = false, onChange }) {
               />
             ))}
           </div>
-          <p className="mt-2" style={{ color: "#1a3d1e" }}>
+          <p className="mt-2" style={{ color: "var(--gray-subtle)" }}>
             throughput-oriented (simplified)
           </p>
         </div>
@@ -171,7 +171,7 @@ export function CpuVsGpuSim({ readonly = false, onChange }) {
         </div>
       )}
 
-      <p style={{ color: "#1a3d1e" }}>
+      <p style={{ color: "var(--gray-subtle)" }}>
         {" > run the GPU demo to complete the architecture target (throughput in parallel)"}
       </p>
     </div>

@@ -55,7 +55,7 @@ export function SequentialVsParallelSim({
         <div>
           <span style={{ color: "var(--green-dim)" }}>PIXELS </span>
           <span className="text-base font-bold">1024</span>
-          <span className="ml-2" style={{ color: "#1a3d1e" }}>
+          <span className="ml-2" style={{ color: "var(--gray-subtle)" }}>
             (showing 32)
           </span>
         </div>
@@ -67,7 +67,7 @@ export function SequentialVsParallelSim({
           <span style={{ color: "var(--green-dim)" }}>EST_TIME </span>
           <span
             className="text-base font-bold"
-            style={{ color: processingTimeMs <= 200 ? "var(--green)" : "#ff4444" }}
+            style={{ color: processingTimeMs <= 200 ? "var(--green)" : "var(--red-error)" }}
           >
             {processingTimeMs}ms
           </span>
@@ -85,16 +85,16 @@ export function SequentialVsParallelSim({
               key={i}
               className="h-5 w-5 rounded-sm text-[8px]"
               style={{
-                border: "1px solid #1a3d1e",
+                border: "1px solid var(--gray-subtle)",
                 background: done ? "var(--green)" : "#0d150d",
-                color: done ? "var(--bg)" : "#1a3d1e",
+                color: done ? "var(--bg)" : "var(--gray-subtle)",
               }}
             />
           );
         })}
       </div>
 
-      <p style={{ color: "#1a3d1e" }}>
+      <p style={{ color: "var(--gray-subtle)" }}>
         {parallelWorkers === 1
           ? " > sequential: one pixel at a time — 1024ms for full frame"
           : ` > ${parallelWorkers} workers in parallel — ~${processingTimeMs}ms (idealized)`}

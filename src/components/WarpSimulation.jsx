@@ -104,7 +104,7 @@ export function WarpSimulation({ initialMasked = 0, readonly = false, onChange }
           <span style={{ color: "var(--green-dim)" }}>WASTED_SLOTS </span>
           <span
             className="text-base font-bold"
-            style={{ color: wastedSlots > 0 ? "#ff4444" : "var(--green-dim)" }}
+            style={{ color: wastedSlots > 0 ? "var(--red-error)" : "var(--green-dim)" }}
           >
             {wastedSlots}
           </span>
@@ -128,19 +128,19 @@ export function WarpSimulation({ initialMasked = 0, readonly = false, onChange }
                 className="flex h-9 w-9 flex-col items-center justify-center rounded text-[9px] font-bold transition-all duration-100"
                 style={{
                   border: masked
-                    ? "1px solid #2a0000"
+                    ? "1px solid color-mix(in srgb, var(--red-error) 55%, #000)"
                     : active
-                    ? "1px solid #00ff41"
-                    : "1px solid #1a3d1e",
+                      ? "1px solid var(--green)"
+                      : "1px solid var(--gray-subtle)",
                   background: masked
-                    ? "#0d0000"
+                    ? "color-mix(in srgb, var(--red-bg) 88%, var(--red-error))"
                     : active
-                    ? "#00ff41"
-                    : idle
-                    ? "#001a00"
-                    : "#030f04",
-                  color: masked ? "#330000" : active ? "#020a03" : "var(--green-dim)",
-                  boxShadow: active ? "0 0 8px #00ff41" : "none",
+                      ? "var(--green)"
+                      : idle
+                        ? "var(--lane-idle)"
+                        : "var(--lane-off)",
+                  color: masked ? "var(--red-error)" : active ? "var(--bg)" : "var(--green-dim)",
+                  boxShadow: active ? "0 0 8px var(--green)" : "none",
                 }}
               >
                 <span>{masked ? "XX" : `L${i}`}</span>
@@ -155,7 +155,7 @@ export function WarpSimulation({ initialMasked = 0, readonly = false, onChange }
         <label className="flex items-center justify-between">
           <span style={{ color: "var(--green-dim)" }}>
             INJECT DIVERGENCE — masked lanes:{" "}
-            <strong style={{ color: maskedCount > 0 ? "#ff4444" : "var(--green)" }}>
+            <strong style={{ color: maskedCount > 0 ? "var(--red-error)" : "var(--green)" }}>
               {maskedCount}
             </strong>
           </span>
@@ -170,7 +170,7 @@ export function WarpSimulation({ initialMasked = 0, readonly = false, onChange }
           className="w-full accent-[#00ff41] disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ accentColor: "var(--green)" }}
         />
-        <div className="flex justify-between text-xs" style={{ color: "#1a3d1e" }}>
+        <div className="flex justify-between text-xs" style={{ color: "var(--gray-subtle)" }}>
           <span>0 (100% util)</span>
           <span>16 (50% util)</span>
           <span>32 (0% util)</span>

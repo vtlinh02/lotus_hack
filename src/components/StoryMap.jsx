@@ -23,7 +23,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
         className="rounded px-4 py-3"
         style={{
           border: "1px solid var(--border)",
-          background: "rgba(3,15,4,0.9)",
+          background: "var(--panel-bg)",
         }}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -40,7 +40,10 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
           </div>
           {/* Progress bar */}
           <div className="flex min-w-[160px] flex-col gap-1">
-            <div className="flex justify-between text-[9px] tracking-widest" style={{ color: "#1a3d1e" }}>
+            <div
+              className="flex justify-between text-[9px] tracking-widest"
+              style={{ color: "var(--gray-subtle)" }}
+            >
               <span>PROGRESS</span>
               <span style={{ color: pct === 100 ? "var(--green)" : "var(--green-dim)" }}>
                 {pct}%
@@ -48,16 +51,17 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
             </div>
             <div
               className="h-1 w-full rounded-full overflow-hidden"
-              style={{ background: "#0d1f0e" }}
+              style={{ background: "var(--storymap-progress-track)" }}
             >
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${pct}%`,
-                  background: pct === 100
-                    ? "var(--green)"
-                    : "linear-gradient(90deg, #00aa2a 0%, #00ff41 100%)",
-                  boxShadow: pct > 0 ? "0 0 6px #00ff41" : "none",
+                  background:
+                    pct === 100
+                      ? "var(--green)"
+                      : "linear-gradient(90deg, var(--green-dim) 0%, var(--green) 100%)",
+                  boxShadow: pct > 0 ? "0 0 6px var(--green)" : "none",
                 }}
               />
             </div>
@@ -121,7 +125,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                       : done
                         ? "1px solid var(--green-dim)"
                         : isHovered
-                          ? "1px solid #2a5c33"
+                          ? "1px solid var(--gray-dim)"
                           : "1px solid var(--border)",
                     background: current
                       ? "rgba(0,255,65,0.07)"
@@ -131,9 +135,9 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                           ? "rgba(3,15,4,0.95)"
                           : "rgba(3,15,4,0.8)",
                     boxShadow: current
-                      ? "0 0 18px #00ff4133, inset 0 0 30px rgba(0,255,65,0.03)"
+                      ? `0 0 18px var(--green-glow), inset 0 0 30px color-mix(in srgb, var(--green) 8%, transparent)`
                       : isHovered
-                        ? "0 0 10px #00ff4118"
+                        ? `0 0 10px color-mix(in srgb, var(--green) 12%, transparent)`
                         : "none",
                     cursor: "pointer",
                   }}
@@ -144,8 +148,9 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                       <span
                         className="font-mono text-sm font-bold tracking-wider"
                         style={{
-                          color: current ? "var(--green)" : done ? "var(--green)" : "#2a5c33",
-                          textShadow: current ? "0 0 8px #00ff41" : "none",
+                          color:
+                            current ? "var(--green)" : done ? "var(--green)" : "var(--gray-dim)",
+                          textShadow: current ? "0 0 8px var(--green)" : "none",
                         }}
                       >
                         {"CH" + ch.number + ": " + ch.title}
@@ -162,9 +167,9 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                         <span
                           className="rounded px-1 py-px font-mono text-[9px] font-bold tracking-widest"
                           style={{
-                            background: "#1a0000",
-                            color: "#ff4444",
-                            border: "1px solid #550000",
+                            background: "var(--red-bg)",
+                            color: "var(--red-error)",
+                            border: "1px solid color-mix(in srgb, var(--red-error) 45%, transparent)",
                           }}
                         >
                           ⚠ WRONG_PATH
@@ -173,7 +178,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                     </div>
                     <p
                       className="font-mono text-[10px] leading-relaxed"
-                      style={{ color: "#2a5c33" }}
+                      style={{ color: "var(--gray-dim)" }}
                     >
                       {"// " + (ch.context ?? ch.narrative?.[0] ?? "")}
                     </p>
@@ -186,8 +191,8 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                             className="rounded px-1.5 py-px font-mono text-[8px] tracking-wider"
                             style={{
                               background: "rgba(0,170,42,0.08)",
-                              color: "#1a3d1e",
-                              border: "1px solid #1a3d1e",
+                              color: "var(--gray-subtle)",
+                              border: "1px solid var(--gray-subtle)",
                             }}
                           >
                             [{t}]
@@ -217,8 +222,8 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                               }
                             : {
                                 background: "transparent",
-                                color: "#1a3d1e",
-                                border: "1px solid #1a3d1e",
+                                color: "var(--gray-subtle)",
+                                border: "1px solid var(--gray-subtle)",
                               }
                       }
                     >
@@ -227,19 +232,10 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
                     {/* Sim type chip */}
                     <span
                       className="font-mono text-[8px] tracking-widest"
-                      style={{ color: "#1a3d1e" }}
+                      style={{ color: "var(--gray-subtle)" }}
                     >
                       {simLabel}
                     </span>
-                    {/* Target label on hover or if active */}
-                    {(isHovered || current) && ch.target?.label && (
-                      <span
-                        className="max-w-[140px] text-right font-mono text-[8px] leading-snug tracking-wider"
-                        style={{ color: "#2a5c33" }}
-                      >
-                        {"TARGET: " + ch.target.label}
-                      </span>
-                    )}
                   </div>
 
                   {/* Hover: right-edge scan accent */}
@@ -257,7 +253,7 @@ export function StoryMap({ chapters = CHAPTERS, isComplete, currentChapterId, on
       </div>
 
       {/* Footer hint */}
-      <p className="text-[10px] tracking-widest" style={{ color: "#1a3d1e" }}>
+      <p className="text-[10px] tracking-widest" style={{ color: "var(--gray-subtle)" }}>
         {"// click any chapter to enter — no prerequisites required"}
       </p>
     </div>

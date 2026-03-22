@@ -47,7 +47,7 @@ export function RaceConditionSim({ readonly = false, onChange }) {
           <span style={{ color: "var(--green-dim)" }}>LAST_COUNT </span>
           <span
             className="text-base font-bold"
-            style={{ color: lastResult === EXPECTED ? "var(--green)" : "#ff4444" }}
+            style={{ color: lastResult === EXPECTED ? "var(--green)" : "var(--red-error)" }}
           >
             {lastResult ?? "—"}
           </span>
@@ -74,8 +74,8 @@ export function RaceConditionSim({ readonly = false, onChange }) {
         <div
           className="rounded px-4 py-3 font-mono font-bold"
           style={{
-            border: "2px solid #ff4444",
-            color: "#ff4444",
+            border: "2px solid var(--red-error)",
+            color: "var(--red-error)",
             minWidth: "120px",
             textAlign: "center",
           }}
@@ -99,7 +99,7 @@ export function RaceConditionSim({ readonly = false, onChange }) {
         </div>
       </div>
 
-      <p style={{ color: "#1a3d1e" }}>
+      <p style={{ color: "var(--gray-subtle)" }}>
         {
           " > two threads increment the same counter without synchronization — interleaved RMW — wrong totals"
         }

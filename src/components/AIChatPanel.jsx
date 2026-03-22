@@ -131,7 +131,7 @@ export function AIChatPanel({ chapter, pendingInput, onPendingInputConsumed, dis
       </div>
       <div className="border-t p-2" style={{ borderColor: "var(--border)" }}>
         {disabled ? (
-          <p className="text-xs" style={{ color: "#1a3d1e" }}>
+          <p className="text-xs" style={{ color: "var(--gray-subtle)" }}>
             // complete the briefing first
           </p>
         ) : (

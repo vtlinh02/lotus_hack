@@ -81,7 +81,7 @@ export function Roadmap({ lessons, isDone, onSelect, selectedId }) {
                 {/* Status label */}
                 <span
                   className="mt-1 text-xs tracking-widest"
-                  style={{ color: done ? "var(--green)" : "#1a3d1e" }}
+                  style={{ color: done ? "var(--green)" : "var(--gray-subtle)" }}
                 >
                   {done ? "CLEARED" : "LOCKED"}
                 </span>

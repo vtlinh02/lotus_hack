@@ -54,17 +54,17 @@ export function WrongPathReveal({ wrongPath, onContinue }) {
     <section
       className="rounded p-4"
       style={{
-        border: "1px solid #ff4444",
+        border: "1px solid var(--red-error)",
         background: "rgba(255,68,68,0.06)",
       }}
     >
       <p
         className="mb-3 text-xs font-bold tracking-widest"
-        style={{ color: "#ff4444" }}
+        style={{ color: "var(--red-error)" }}
       >
         // WRONG PATH
       </p>
-      <div className="space-y-1 font-mono text-xs" style={{ color: "#ff4444" }}>
+      <div className="space-y-1 font-mono text-xs" style={{ color: "var(--red-error)" }}>
         {printedLines.map((text, i) => (
           <p key={i}>{text}</p>
         ))}

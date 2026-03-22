@@ -107,18 +107,37 @@ function useTypewriter(lines, speedMs = 40) {
   return { line: displayed, lineIdx, done };
 }
 
-export function IntroScreen({ onEnter }) {
+export function IntroScreen({ onEnter, isDark = true, onToggleTheme }) {
   const canvasRef = useRef(null);
   useMatrixRain(canvasRef);
 
   const { line, lineIdx, done } = useTypewriter(LINES);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
+    <div
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+      style={{ background: "var(--bg)", color: "var(--green)" }}
+    >
+      {typeof onToggleTheme === "function" && (
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          className="absolute right-4 top-4 z-20 rounded px-3 py-1.5 text-xs tracking-widest transition"
+          style={{
+            border: "1px solid var(--border)",
+            color: "var(--green)",
+            background: isDark ? "var(--panel-bg)" : "rgba(0,122,30,0.1)",
+          }}
+          title={`Switch to ${isDark ? "light" : "dark"} mode`}
+        >
+          [ {isDark ? "☀ LIGHT" : "🌙 DARK"} ]
+        </button>
+      )}
+
       {/* Matrix rain canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 h-full w-full"
+        className="intro-matrix-canvas absolute inset-0 h-full w-full"
         style={{ zIndex: 0 }}
       />
 
@@ -127,7 +146,7 @@ export function IntroScreen({ onEnter }) {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 20%, rgba(2,10,3,0.85) 100%)",
+            "radial-gradient(ellipse at center, transparent 20%, color-mix(in srgb, var(--bg) 88%, transparent) 100%)",
           zIndex: 1,
         }}
       />
@@ -136,18 +155,21 @@ export function IntroScreen({ onEnter }) {
       <div
         className="relative z-10 flex flex-col gap-6 rounded-lg p-8 sm:p-12"
         style={{
-          border: "1px solid #00ff41",
-          boxShadow: "0 0 40px #00ff4133, 0 0 8px #00ff41",
-          background: "rgba(2,10,3,0.82)",
+          border: "1px solid var(--green)",
+          boxShadow: "0 0 40px var(--green-glow), 0 0 8px var(--green)",
+          background: "var(--panel-bg)",
           minWidth: "min(600px, 90vw)",
         }}
       >
         {/* Top bar */}
         <div
           className="flex items-center gap-2 border-b pb-3 text-xs"
-          style={{ borderColor: "#00ff4133", color: "#00aa2a" }}
+          style={{ borderColor: "var(--green-glow)", color: "var(--green-dim)" }}
         >
-          <span className="h-2 w-2 rounded-full bg-[#00ff41]" />
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: "var(--green)" }}
+          />
           <span>PARALLEL_XRAY — TERMINAL</span>
           <span className="ml-auto">SYS_OK</span>
         </div>
@@ -156,13 +178,13 @@ export function IntroScreen({ onEnter }) {
         <div className="space-y-2">
           {/* Lines already completed */}
           {LINES.slice(0, lineIdx).map((l, i) => (
-            <p key={i} className="text-sm" style={{ color: "#00aa2a" }}>
+            <p key={i} className="text-sm" style={{ color: "var(--green-dim)" }}>
               {l}
             </p>
           ))}
           {/* Current typing line */}
           {!done && (
-            <p className="text-sm" style={{ color: "#00ff41" }}>
+            <p className="text-sm" style={{ color: "var(--green)" }}>
               {line}
               <span className="cursor-blink ml-0.5 inline-block w-2">█</span>
             </p>
@@ -172,13 +194,13 @@ export function IntroScreen({ onEnter }) {
             <>
               <p
                 className="glow-text mt-4 text-2xl font-bold tracking-widest sm:text-3xl"
-                style={{ color: "#00ff41" }}
+                style={{ color: "var(--green)" }}
               >
                 GPU INTERNALS.
               </p>
               <p
                 className="text-2xl font-bold tracking-widest sm:text-3xl"
-                style={{ color: "#00aa2a" }}
+                style={{ color: "var(--green-dim)" }}
               >
                 EXPOSED.
               </p>
@@ -193,18 +215,18 @@ export function IntroScreen({ onEnter }) {
             onClick={onEnter}
             className="glow mt-2 w-full rounded px-6 py-3 text-lg font-bold tracking-widest transition-all duration-150 hover:glow-strong"
             style={{
-              border: "1px solid #00ff41",
+              border: "1px solid var(--green)",
               background: "transparent",
-              color: "#00ff41",
+              color: "var(--green)",
               letterSpacing: "0.3em",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#00ff41";
-              e.currentTarget.style.color = "#020a03";
+              e.currentTarget.style.background = "var(--green)";
+              e.currentTarget.style.color = "var(--bg)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "#00ff41";
+              e.currentTarget.style.color = "var(--green)";
             }}
           >
             [ JACK IN ]
@@ -212,7 +234,7 @@ export function IntroScreen({ onEnter }) {
         )}
 
         {/* Bottom hint */}
-        <p className="text-xs" style={{ color: "#1a3d1e" }}>
+        <p className="text-xs" style={{ color: "var(--gray-subtle)" }}>
           // GPU concepts — one level at a time — fundamentals unchanged since
           2007
         </p>

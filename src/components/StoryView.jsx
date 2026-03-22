@@ -17,7 +17,13 @@ import {
   formatTargetCurrent,
 } from "../story/simState.js";
 
-export function StoryView({ chapter, onComplete, onGoMap }) {
+export function StoryView({
+  chapter,
+  onComplete,
+  onGoMap,
+  isDark = true,
+  onToggleTheme,
+}) {
   const [phase, setPhase] = useState("narrative");
   const [simState, setSimState] = useState(() => getInitialSimState(chapter));
   const [pendingAiInput, setPendingAiInput] = useState("");
@@ -171,8 +177,8 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
       className={`flex min-h-screen flex-col ${phase === "success" && !showWinMessage ? "chapter-clear-flash" : ""}`}
     >
       <header
-        className="flex items-center justify-between border-b px-4 py-3"
-        style={{ borderColor: "var(--border)", background: "rgba(2,10,3,0.9)" }}
+        className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3"
+        style={{ borderColor: "var(--border)", background: "var(--header-bg)" }}
       >
         <div>
           <span
@@ -185,17 +191,34 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
             {`// CH${chapter.number}: ${chapter.title}`}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={onGoMap}
-          className="rounded px-3 py-1.5 text-xs tracking-widest transition"
-          style={{
-            border: "1px solid var(--green-dim)",
-            color: "var(--green-dim)",
-          }}
-        >
-          [ MAP ]
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {typeof onToggleTheme === "function" && (
+            <button
+              type="button"
+              onClick={onToggleTheme}
+              className="rounded px-3 py-1.5 text-xs tracking-widest transition"
+              style={{
+                border: "1px solid var(--border)",
+                color: "var(--green)",
+                background: isDark ? "transparent" : "rgba(0,122,30,0.12)",
+              }}
+              title={`Switch to ${isDark ? "light" : "dark"} mode`}
+            >
+              [ {isDark ? "☀ LIGHT" : "🌙 DARK"} ]
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onGoMap}
+            className="rounded px-3 py-1.5 text-xs tracking-widest transition"
+            style={{
+              border: "1px solid var(--green-dim)",
+              color: "var(--green-dim)",
+            }}
+          >
+            [ MAP ]
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -208,7 +231,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
               className="rounded p-4"
               style={{
                 border: "1px solid var(--border)",
-                background: "rgba(3,15,4,0.8)",
+                background: "var(--panel-bg)",
               }}
             >
               <p
@@ -227,7 +250,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                 className="rounded p-4"
                 style={{
                   border: "1px solid var(--border)",
-                  background: "rgba(3,15,4,0.8)",
+                  background: "var(--panel-bg)",
                 }}
               >
                 <p
@@ -255,7 +278,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                 className="rounded p-4"
                 style={{
                   border: "1px solid var(--border)",
-                  background: "rgba(3,15,4,0.8)",
+                  background: "var(--panel-bg)",
                 }}
               >
                 <p
@@ -285,7 +308,7 @@ export function StoryView({ chapter, onComplete, onGoMap }) {
                 className="rounded p-4"
                 style={{
                   border: "1px solid var(--border)",
-                  background: "rgba(3,15,4,0.8)",
+                  background: "var(--panel-bg)",
                 }}
               >
                 <p

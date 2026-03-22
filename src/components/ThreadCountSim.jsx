@@ -79,7 +79,7 @@ export function ThreadCountSim({
           className="w-full disabled:opacity-50"
           style={{ accentColor: "var(--green)" }}
         />
-        <div className="flex justify-between gap-1" style={{ color: "#1a3d1e" }}>
+        <div className="flex justify-between gap-1" style={{ color: "var(--gray-subtle)" }}>
           {available.map((n) => (
             <span key={n} className="flex-1 text-center">
               {n}
@@ -102,17 +102,17 @@ export function ThreadCountSim({
                 className="w-full rounded-t transition-all"
                 style={{
                   height: `${Math.max(12, h)}%`,
-                  background: active ? "var(--green)" : "#1a3d1e",
+                  background: active ? "var(--green)" : "var(--gray-subtle)",
                   minHeight: "6px",
                 }}
               />
-              <span style={{ color: active ? "var(--green)" : "#1a3d1e", fontSize: "9px" }}>{n}</span>
+              <span style={{ color: active ? "var(--green)" : "var(--gray-subtle)", fontSize: "9px" }}>{n}</span>
             </div>
           );
         })}
       </div>
 
-      <p style={{ color: "#1a3d1e" }}>
+      <p style={{ color: "var(--gray-subtle)" }}>
         {maxThreadCount < 8
           ? " > unlock higher thread counts after the optimize question"
           : " > more threads — less time, if work splits evenly (simplified model)"}

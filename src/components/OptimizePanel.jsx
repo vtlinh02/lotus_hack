@@ -120,7 +120,7 @@ export function OptimizePanel({ optimize, onCorrect }) {
         <>
           {feedbackIdx === null ? (
             <div className="space-y-3">
-              <p className="font-mono text-xs" style={{ color: "#1a3d1e" }}>
+              <p className="font-mono text-xs" style={{ color: "var(--gray-subtle)" }}>
                 &gt; stuck? ask XRAY-AI about the suggested terms.
               </p>
               <p className="font-mono text-xs" style={{ color: "var(--green-dim)" }}>
@@ -141,7 +141,7 @@ export function OptimizePanel({ optimize, onCorrect }) {
                           ? "1px solid #0d2b0f"
                           : "1px solid var(--border)",
                         background: "transparent",
-                        color: tried ? "#1a3d1e" : "var(--green-dim)",
+                        color: tried ? "var(--gray-subtle)" : "var(--green-dim)",
                         cursor: tried ? "not-allowed" : "pointer",
                         opacity: tried ? 0.5 : 1,
                       }}
@@ -162,7 +162,7 @@ export function OptimizePanel({ optimize, onCorrect }) {
                     >
                       <span
                         className="shrink-0 font-bold"
-                        style={{ color: tried ? "#1a3d1e" : "var(--green)" }}
+                        style={{ color: tried ? "var(--gray-subtle)" : "var(--green)" }}
                       >
                         [{LABELS[idx]}]
                       </span>

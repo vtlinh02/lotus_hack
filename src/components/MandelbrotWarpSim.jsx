@@ -393,7 +393,7 @@ export function MandelbrotWarpSim({
 
   if (error) {
     return (
-      <p className="text-xs" style={{ color: "#ff4444" }}>
+      <p className="text-xs" style={{ color: "var(--red-error)" }}>
         Failed to load WASM: {error?.message ?? String(error)}
       </p>
     );
@@ -421,8 +421,9 @@ export function MandelbrotWarpSim({
           <span
             className="text-base font-bold"
             style={{
-              color: liveUtil < 50 ? "#ff4444" : "var(--green)",
-              textShadow: liveUtil < 50 ? "0 0 8px #ff4444" : "0 0 8px var(--green)",
+              color: liveUtil < 50 ? "var(--red-error)" : "var(--green)",
+              textShadow:
+                liveUtil < 50 ? "0 0 8px var(--red-error)" : "0 0 8px var(--green)",
             }}
           >
             {activeNow}/{WARP_WIDTH}
@@ -454,16 +455,17 @@ export function MandelbrotWarpSim({
             role="img"
             aria-label="Mandelbrot set, click to select warp"
             onClick={handleCanvasClick}
-            className="max-w-full cursor-crosshair [image-rendering:pixelated]"
+            className="mandelbrot-canvas max-w-full cursor-crosshair [image-rendering:pixelated]"
             style={{
               border: "1px solid var(--green-dim)",
-              boxShadow: "0 0 16px rgba(0,255,65,0.15), inset 0 0 40px rgba(0,0,0,0.5)",
-              background: "#020a03",
+              boxShadow:
+                "0 0 16px var(--green-glow), inset 0 0 40px color-mix(in srgb, var(--bg) 55%, black)",
+              background: "var(--bg)",
             }}
           />
           <pre
             className="mt-2 whitespace-pre-wrap font-mono text-[10px]"
-            style={{ color: "#1a3d1e" }}
+            style={{ color: "var(--gray-subtle)" }}
           >
             {meta}
           </pre>
@@ -479,7 +481,7 @@ export function MandelbrotWarpSim({
             className="rounded p-2"
             style={{
               border: "1px solid var(--border)",
-              background: "rgba(0,0,0,0.35)",
+              background: "var(--chart-well)",
             }}
           >
             <div
@@ -497,7 +499,9 @@ export function MandelbrotWarpSim({
                   <div
                     key={i}
                     className="w-full border-t"
-                    style={{ borderColor: "rgba(26,61,30,0.35)" }}
+                        style={{
+                          borderColor: "color-mix(in srgb, var(--gray-subtle) 35%, transparent)",
+                        }}
                   />
                 ))}
               </div>
@@ -551,7 +555,7 @@ export function MandelbrotWarpSim({
                                 ? "1px solid #2a0000"
                                 : pulseTop
                                   ? "1px solid #00ff41"
-                                  : "1px solid #1a3d1e"
+                                  : "1px solid var(--gray-subtle)"
                               : "1px solid transparent",
                           boxShadow: pulseTop ? "0 0 12px #00ff41, 0 -2px 8px #00ff4188" : "none",
                         }}
@@ -559,7 +563,7 @@ export function MandelbrotWarpSim({
                     </div>
                     <span
                       className="mt-0.5 text-center font-mono text-[6px] leading-none sm:text-[7px]"
-                      style={{ color: "#1a3d1e" }}
+                      style={{ color: "var(--gray-subtle)" }}
                     >
                       {String(laneId).padStart(2, "0")}
                     </span>
@@ -651,7 +655,7 @@ export function MandelbrotWarpSim({
                 disabled={!module}
                 className="rounded px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider disabled:opacity-40"
                 style={{
-                  border: "1px solid #1a3d1e",
+                  border: "1px solid var(--gray-subtle)",
                   color: "var(--green-dim)",
                 }}
               >
@@ -661,15 +665,15 @@ export function MandelbrotWarpSim({
           </div>
 
           <div
-            className="max-h-32 overflow-y-auto rounded p-2 font-mono text-[10px] leading-relaxed"
+            className="trace-log-panel max-h-32 overflow-y-auto rounded p-2 font-mono text-[10px] leading-relaxed"
             style={{
               border: "1px solid var(--border)",
-              color: "#2a5c33",
-              background: "rgba(2,10,3,0.6)",
+              color: "var(--gray-dim)",
+              background: "var(--trace-log-bg)",
             }}
           >
             {logLines.length === 0 ? (
-              <span style={{ color: "#1a3d1e" }}>{"> trace log…"}</span>
+              <span style={{ color: "var(--gray-subtle)" }}>{"> trace log…"}</span>
             ) : (
               logLines.map((line, i) => <div key={i}>{line}</div>)
             )}

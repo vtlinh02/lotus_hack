@@ -47,7 +47,7 @@ export function CodePanel({ codeSnippet }) {
                 <td
                   className="select-none pr-4 text-right"
                   style={{
-                    color: "#1a3d1e",
+                    color: "var(--gray-subtle)",
                     minWidth: "2rem",
                     verticalAlign: "top",
                     paddingTop: "1px",
@@ -88,7 +88,7 @@ export function CodePanel({ codeSnippet }) {
 
       <p
         className="mt-2 text-xs"
-        style={{ color: "#1a3d1e" }}
+        style={{ color: "var(--gray-subtle)" }}
       >
         // red lines = the problem. ask XRAY-AI to understand why.
       </p>

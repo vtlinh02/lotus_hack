@@ -179,7 +179,7 @@ export function Simulation() {
             </div>
           )}
         </div>
-        <p className="mt-2 text-xs" style={{ color: "#1a3d1e" }}>
+        <p className="mt-2 text-xs" style={{ color: "var(--gray-subtle)" }}>
           {mode === "naive"
             ? `Naive: ${N}×${N} outputs × (${N} from A + ${N} from B) = ${NAIVE_LOADS}`
             : `Tiled: ${N_TILES * N_TILES} tile-blocks × ${N / TILE} phases × ${TILE * TILE * 2} loads = ${TILED_LOADS_CORRECT}`}

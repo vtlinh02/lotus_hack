@@ -8,6 +8,63 @@
   --bg: #020a03;
   --bg-panel: #030f04;
   --border: #1a3d1e;
+  --red-error: #ff4444;
+  --red-bg: #1a0000;
+  --gray-dim: #2a5c33;
+  --gray-subtle: #1a3d1e;
+  --panel-bg: rgba(3, 15, 4, 0.9);
+  --header-bg: rgba(2, 10, 3, 0.9);
+  --storymap-progress-track: #0d1f0e;
+  --chart-well: rgba(0, 0, 0, 0.35);
+  --trace-log-bg: rgba(2, 10, 3, 0.6);
+  --lane-idle: #001a00;
+  --lane-off: #030f04;
+}
+
+/* Presentation / daylight — toggle via .light-mode on <html> */
+.light-mode {
+  --green: #007a1e;
+  --green-dim: #2d6b3a;
+  --green-glow: #007a1e44;
+  --bg: #f8fdf8;
+  --bg-panel: #f0f7f0;
+  --border: #a8d4b0;
+  --red-error: #c41e1e;
+  --red-bg: #ffe8e8;
+  --gray-dim: #4a6b4f;
+  --gray-subtle: #6b7d6f;
+  --panel-bg: rgba(240, 247, 240, 0.95);
+  --header-bg: rgba(248, 253, 248, 0.94);
+  --storymap-progress-track: #c8e6cf;
+  --chart-well: rgba(200, 220, 205, 0.55);
+  --trace-log-bg: rgba(240, 247, 240, 0.85);
+  --lane-idle: #c8e6cf;
+  --lane-off: #e8f4eb;
+}
+
+.light-mode body::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.025) 3px,
+    rgba(0, 0, 0, 0.025) 4px
+  );
+}
+
+.light-mode .intro-matrix-canvas {
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.light-mode .mandelbrot-canvas {
+  background: var(--bg) !important;
+}
+
+.light-mode .trace-log-panel {
+  background: var(--trace-log-bg) !important;
+  color: var(--gray-dim) !important;
+  border-color: var(--border) !important;
 }
 
 *, *::before, *::after {
@@ -77,8 +134,8 @@ body::after {
 
 /* Pulse for active lane boxes in simulation */
 @keyframes lane-pulse {
-  0%, 100% { background: #00ff41; box-shadow: 0 0 6px #00ff41; }
-  50%       { background: #00aa2a; box-shadow: 0 0 2px #00aa2a; }
+  0%, 100% { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  50%       { background: var(--green-dim); box-shadow: 0 0 2px var(--green-dim); }
 }
 .lane-active {
   animation: lane-pulse 0.6s ease-in-out infinite;
@@ -86,9 +143,9 @@ body::after {
 
 /* Chapter clear flash — applied to StoryView wrapper on success */
 @keyframes chapter-clear {
-  0%   { box-shadow: 0 0 0px #00ff41; }
-  40%  { box-shadow: 0 0 60px #00ff41, 0 0 120px #00ff4166; }
-  100% { box-shadow: 0 0 0px #00ff41; }
+  0%   { box-shadow: 0 0 0px var(--green); }
+  40%  { box-shadow: 0 0 60px var(--green), 0 0 120px var(--green-glow); }
+  100% { box-shadow: 0 0 0px var(--green); }
 }
 .chapter-clear-flash {
   animation: chapter-clear 1.2s ease-out forwards;
@@ -96,7 +153,7 @@ body::after {
 
 /* Wrong path red pulse */
 @keyframes wrong-path-pulse {
-  0%, 100% { border-color: #ff4444; }
+  0%, 100% { border-color: var(--red-error); }
   50%       { border-color: #aa0000; }
 }
 .wrong-path-border {
@@ -105,11 +162,11 @@ body::after {
 
 /* StoryMap: current chapter card glitch flicker */
 @keyframes glitch-card {
-  0%   { transform: translateX(0); text-shadow: 0 0 8px #00ff41; }
-  2%   { transform: translateX(-2px); text-shadow: -2px 0 #ff4444, 2px 0 #00ffff; }
-  4%   { transform: translateX(2px); text-shadow: 2px 0 #ff4444, -2px 0 #00ffff; }
-  6%   { transform: translateX(0); text-shadow: 0 0 8px #00ff41; }
-  100% { transform: translateX(0); text-shadow: 0 0 8px #00ff41; }
+  0%   { transform: translateX(0); text-shadow: 0 0 8px var(--green); }
+  2%   { transform: translateX(-2px); text-shadow: -2px 0 var(--red-error), 2px 0 #0088aa; }
+  4%   { transform: translateX(2px); text-shadow: 2px 0 var(--red-error), -2px 0 #0088aa; }
+  6%   { transform: translateX(0); text-shadow: 0 0 8px var(--green); }
+  100% { transform: translateX(0); text-shadow: 0 0 8px var(--green); }
 }
 .glitch-card {
   animation: glitch-card 4s ease-in-out infinite;
@@ -147,8 +204,8 @@ body::after {
 
 /* StoryMap: CLEARED badge pulse */
 @keyframes cleared-pulse {
-  0%, 100% { box-shadow: 0 0 4px #00ff41; }
-  50%       { box-shadow: 0 0 14px #00ff41; }
+  0%, 100% { box-shadow: 0 0 4px var(--green); }
+  50%       { box-shadow: 0 0 14px var(--green); }
 }
 .cleared-pulse {
   animation: cleared-pulse 2s ease-in-out infinite;

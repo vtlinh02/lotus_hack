@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { getChapterById, getNextChapter } from "./story/chapters.js";
 import { useStoryProgress } from "./hooks/useStoryProgress.js";
+import { useTheme } from "./hooks/useTheme.js";
 import { IntroScreen } from "./components/IntroScreen.jsx";
 import { StoryMap } from "./components/StoryMap.jsx";
 import { StoryView } from "./components/StoryView.jsx";
@@ -15,6 +16,8 @@ export default function App() {
     markComplete,
     isComplete,
   } = useStoryProgress();
+
+  const { isDark, toggleTheme } = useTheme();
 
   const activeChapter = currentChapterId ? getChapterById(currentChapterId) : null;
 
@@ -48,7 +51,13 @@ export default function App() {
   }, [currentChapterId, markComplete, setCurrentChapter, goStoryMap]);
 
   if (view === "intro") {
-    return <IntroScreen onEnter={handleJackIn} />;
+    return (
+      <IntroScreen
+        onEnter={handleJackIn}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
+      />
+    );
   }
 
   return (
@@ -64,10 +73,10 @@ export default function App() {
                 className="border-b px-4 py-4 backdrop-blur"
                 style={{
                   borderColor: "var(--border)",
-                  background: "rgba(2,10,3,0.9)",
+                  background: "var(--header-bg)",
                 }}
               >
-                <div className="mx-auto flex max-w-5xl flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h1 className="glow-text text-lg font-bold tracking-widest sm:text-xl">
                       PARALLEL_XRAY
@@ -79,18 +88,33 @@ export default function App() {
                       // GPU optimization — story mode
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setView("intro")}
-                    className="self-start rounded px-3 py-1.5 text-xs tracking-widest transition"
-                    style={{
-                      border: "1px solid var(--border)",
-                      color: "#1a3d1e",
-                    }}
-                    title="Show intro screen again"
-                  >
-                    [ REBOOT ]
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2 self-start">
+                    <button
+                      type="button"
+                      onClick={toggleTheme}
+                      className="rounded px-3 py-1.5 text-xs tracking-widest transition"
+                      style={{
+                        border: "1px solid var(--border)",
+                        color: "var(--green)",
+                        background: isDark ? "transparent" : "rgba(0,122,30,0.12)",
+                      }}
+                      title={`Switch to ${isDark ? "light" : "dark"} mode`}
+                    >
+                      [ {isDark ? "☀ LIGHT" : "🌙 DARK"} ]
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setView("intro")}
+                      className="rounded px-3 py-1.5 text-xs tracking-widest transition"
+                      style={{
+                        border: "1px solid var(--border)",
+                        color: "var(--gray-subtle)",
+                      }}
+                      title="Show intro screen again"
+                    >
+                      [ REBOOT ]
+                    </button>
+                  </div>
                 </div>
               </header>
               <main className="mx-auto max-w-5xl px-4 py-6">
@@ -108,6 +132,8 @@ export default function App() {
               chapter={activeChapter}
               onComplete={handleChapterComplete}
               onGoMap={goStoryMap}
+              isDark={isDark}
+              onToggleTheme={toggleTheme}
             />
           )}
 
