@@ -102,3 +102,54 @@ body::after {
 .wrong-path-border {
   animation: wrong-path-pulse 1s ease-in-out infinite;
 }
+
+/* StoryMap: current chapter card glitch flicker */
+@keyframes glitch-card {
+  0%   { transform: translateX(0); text-shadow: 0 0 8px #00ff41; }
+  2%   { transform: translateX(-2px); text-shadow: -2px 0 #ff4444, 2px 0 #00ffff; }
+  4%   { transform: translateX(2px); text-shadow: 2px 0 #ff4444, -2px 0 #00ffff; }
+  6%   { transform: translateX(0); text-shadow: 0 0 8px #00ff41; }
+  100% { transform: translateX(0); text-shadow: 0 0 8px #00ff41; }
+}
+.glitch-card {
+  animation: glitch-card 4s ease-in-out infinite;
+}
+
+/* StoryMap: scan sweep for active chapter */
+@keyframes scan-sweep {
+  0%   { background-position: 0 -100%; }
+  100% { background-position: 0 200%; }
+}
+.scan-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0,255,65,0.06) 50%,
+    transparent 100%
+  );
+  background-size: 100% 50%;
+  animation: scan-sweep 2.5s linear infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* StoryMap: blinking cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* StoryMap: CLEARED badge pulse */
+@keyframes cleared-pulse {
+  0%, 100% { box-shadow: 0 0 4px #00ff41; }
+  50%       { box-shadow: 0 0 14px #00ff41; }
+}
+.cleared-pulse {
+  animation: cleared-pulse 2s ease-in-out infinite;
+}
